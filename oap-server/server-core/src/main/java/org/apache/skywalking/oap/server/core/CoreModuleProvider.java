@@ -25,6 +25,7 @@ import org.apache.skywalking.oap.server.core.analysis.worker.MetricsStreamProces
 import org.apache.skywalking.oap.server.core.annotation.AnnotationScan;
 import org.apache.skywalking.oap.server.core.cache.*;
 import org.apache.skywalking.oap.server.core.cluster.*;
+import org.apache.skywalking.oap.server.core.command.CommandService;
 import org.apache.skywalking.oap.server.core.config.*;
 import org.apache.skywalking.oap.server.core.oal.rt.*;
 import org.apache.skywalking.oap.server.core.query.*;
@@ -110,6 +111,12 @@ public class CoreModuleProvider extends ModuleProvider {
         if (moduleConfig.getMaxMessageSize() > 0) {
             grpcServer.setMaxMessageSize(moduleConfig.getMaxMessageSize());
         }
+        if (moduleConfig.getGRPCThreadPoolQueueSize() > 0) {
+            grpcServer.setThreadPoolQueueSize(moduleConfig.getGRPCThreadPoolQueueSize());
+        }
+        if (moduleConfig.getGRPCThreadPoolSize() > 0) {
+            grpcServer.setThreadPoolSize(moduleConfig.getGRPCThreadPoolSize());
+        }
         grpcServer.initialize();
 
         jettyServer = new JettyServer(moduleConfig.getRestHost(), moduleConfig.getRestPort(), moduleConfig.getRestContextPath(), moduleConfig.getJettySelectors());
@@ -154,6 +161,8 @@ public class CoreModuleProvider extends ModuleProvider {
         this.registerServiceImplementation(AggregationQueryService.class, new AggregationQueryService(getManager()));
         this.registerServiceImplementation(AlarmQueryService.class, new AlarmQueryService(getManager()));
         this.registerServiceImplementation(TopNRecordsQueryService.class, new TopNRecordsQueryService(getManager()));
+
+        this.registerServiceImplementation(CommandService.class, new CommandService(getManager()));
 
         annotationScan.registerListener(streamAnnotationListener);
 
